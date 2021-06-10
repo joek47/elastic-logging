@@ -1,0 +1,32 @@
+version: '3.2'
+services:
+    sys-logstash:
+        build:
+            context: syslogstash/
+            args:
+                ELK_VERSION: $ELK_VERSION
+        volumes:
+            - type: bind
+              source: ./syslogstash/config/logstash.yml
+              target: /usr/share/logstash/config/logstash.yml
+              read_only: true
+            - type: bind
+              source: ./syslogstash/pipeline
+              target: /usr/share/logstash/pipeline
+              read_only: true
+            - type: bind
+              source: $LOG_SRC_DIR
+              target: /usr/share/logstash/logs2ES
+              read_only: true
+        ports:                                                                  
+            - "5045:5044/tcp"                                                   
+            - "9601:9600"  
+        logging:
+            driver: none
+        environment:
+            LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+
+networks:
+    default:
+        external:
+            name: elk
